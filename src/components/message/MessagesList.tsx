@@ -45,8 +45,6 @@ export function MessagesList({ chatId }: MessagesListProps) {
         const currentIds = new Set(messages.map((message) => message.id))
         const previous = previousMessagesRef.current
 
-        // Primeira carga ou troca de conversa:
-        // registra o histórico sem animar mensagens antigas.
         if (!previous || previous.chatId !== chatId) {
             previousMessagesRef.current = {
                 chatId,
@@ -56,7 +54,6 @@ export function MessagesList({ chatId }: MessagesListProps) {
             return
         }
 
-        // Procura uma resposta que não existia na lista anterior.
         const newAnswer = [...messages]
             .reverse()
             .find(

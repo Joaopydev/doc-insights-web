@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 import { useChats } from "../../hooks/queries/useChats";
 import { cn } from "../../utils/cn";

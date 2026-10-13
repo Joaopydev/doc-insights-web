@@ -1,75 +1,148 @@
-# React + TypeScript + Vite
+# Doc Insights Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for the Doc Insights application — a React interface for authentication, document uploads, and natural-language questions about uploaded content.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The application allows users to:
 
-## React Compiler
+- create accounts and log in
+- upload documents for analysis
+- track upload status
+- start conversations based on specific documents
+- ask questions and receive answers in real time
+- review recent conversations in the sidebar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The UI consumes the Doc Insights backend API and uses WebSocket to update the processing state of responses.
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19
+- TypeScript
+- Vite
+- React Router DOM
+- TanStack Query
+- Zustand
+- Tailwind CSS
+- Radix UI
+- Axios
+- Zod + React Hook Form
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Main features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Authentication
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- login screen
+- sign-up screen
+- local token storage with persistence
+- automatic redirect for private and public pages
 
+### Document upload
+
+- file selection with drag-and-drop
+- document creation in the backend
+- upload to a presigned URL
+- list of pending and completed uploads
+
+### Document chat
+
+- conversation creation per document
+- question submission via form
+- message list for each conversation
+- recent conversation history
+- processing/in-progress indication via WebSocket
+
+## Project structure
+
+```text
+src/
+├── components/
+│   ├── chat/
+│   ├── layouts/
+│   ├── message/
+│   ├── signin/
+│   ├── signup/
+│   ├── ui/
+│   └── upload/
+├── config/
+├── contexts/
+├── hooks/
+├── lib/
+├── services/
+├── store/
+├── types/
+├── utils/
+├── app.tsx
+├── main.tsx
+└── index.css
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Requirements
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 18+
+- npm
+- a Doc Insights backend exposing the required APIs and WebSocket endpoint
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment configuration
 
+Create a `.env` file in the project root with the following variables:
+
+```env
+VITE_DOC_INSIGHTS_API="https://<api-url>"
+VITE_WEBSCOKET_END_POINT="wss://<websocket-url>"
 ```
+
+These variables are used for:
+
+- `VITE_DOC_INSIGHTS_API`: HTTP API base URL
+- `VITE_WEBSCOKET_END_POINT`: WebSocket endpoint for chat and processing events
+
+## Installation
+
+```bash
+npm install
+```
+
+## Run in development mode
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` by default.
+
+## Production build
+
+```bash
+npm run build
+```
+
+## Preview
+
+```bash
+npm run preview
+```
+
+## Available scripts
+
+- `npm run dev` — starts the development environment
+- `npm run build` — compiles the app for production
+- `npm run preview` — serves the production build locally
+- `npm run lint` — runs ESLint
+
+## Notes
+
+This frontend depends on the Doc Insights backend for:
+
+- authentication
+- document creation and listing
+- conversation creation
+- sending and retrieving messages
+- processing questions about documents
+
+If the backend is unavailable, the application will not be able to log in, upload files, or chat.
+
+## License
+
+This project does not currently define an explicit license.
+
