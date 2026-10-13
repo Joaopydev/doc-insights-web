@@ -1,0 +1,10 @@
+import React, { createContext } from "react";
+
+interface IWebSocketContextValue {
+    isThinkingChats: Record<string, boolean>
+    setIsThinkingChats: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+    waitingForAnswer: boolean
+    setWaitingForAnswer: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const WebSocketContext = createContext({} as IWebSocketContextValue)

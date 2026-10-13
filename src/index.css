@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background-color: #18181b;
+  color: #f4f4f5;
+}
+
+@keyframes message-enter {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-message-enter {
+    animation: message-enter 500ms ease-out;
+}
