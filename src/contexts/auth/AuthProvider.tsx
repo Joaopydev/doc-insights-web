@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { AuthContext } from ".";
 import { AuthTokensManager } from "../../lib/AuthTokenManager";
@@ -10,56 +10,67 @@ import { useUploads } from "../../store/uploads";
 
 
 export function AuthProviderContext({ children }: { children: React.ReactNode }) {
+    const queryClient = useQueryClient()
     const { clearUploads } = useUploads()
     const [tokens, setTokens] = useState<AuthTokensManager.Tokens | null>(null)
-    const { user, isLoadingUser } = useUser({ accessToken: tokens?.accessToken ?? null})
+    const [isLoadingTokens, setIsLoadingTokens] = useState(true)
+    const { user, isUserError } = useUser({ accessToken: tokens?.accessToken ?? null})
+
+    // O header precisa estar no client antes de setTokens, senão o /me
+    // (disparado assim que há token) pode sair sem Authorization.
+    const applyTokens = useCallback((newTokens: AuthTokensManager.Tokens | null) => {
+        if (newTokens) {
+            Service.setAccessToken(newTokens.accessToken)
+        } else {
+            Service.removeAccessToken()
+        }
+        setTokens(newTokens)
+    }, [])
 
     useEffect(() => {
         async function load() {
             const tokens = await AuthTokensManager.load()
-            setTokens(tokens)
+            applyTokens(tokens)
+            setIsLoadingTokens(false)
         }
         load()
-    }, [])
+    }, [applyTokens])
 
     useEffect(() => {
-        async function run() {
-            if (!tokens) {
-                Service.removeAccessToken()
-                return
-            }
-
-            await AuthTokensManager.save(tokens)
-            Service.setAccessToken(tokens.accessToken)
+        if (tokens) {
+            AuthTokensManager.save(tokens)
         }
-        run()
     }, [tokens])
+
+    const signOut = useCallback(async () => {
+        applyTokens(null)
+        queryClient.removeQueries({ queryKey: ['user'] })
+        clearUploads()
+        await AuthTokensManager.clear()
+    }, [applyTokens, queryClient, clearUploads])
 
     const { mutateAsync: signIn } = useMutation({
         mutationFn: async (payload: AuthService.SignInPayload) => {
             const data = await AuthService.signIn(payload)
-            setTokens(data)
+            applyTokens(data)
         }
     })
 
     const { mutateAsync: signUp } = useMutation({
         mutationFn: async (payload: AuthService.SignUpPayload) => {
             const data = await AuthService.signUp(payload)
-            setTokens(data)
+            applyTokens(data)
         }
     })
 
-    const signOut = useCallback(async () => {
-        setTokens(null)
-        clearUploads()
-        await AuthTokensManager.clear()
-    }, [])
+    // Carregando = ainda lendo o token do storage, ou há token mas o usuário ainda não chegou.
+    const isLoading = isLoadingTokens || (!!tokens && !user && !isUserError)
 
     return (
         <AuthContext.Provider
             value={{
                 user: user || null,
-                isLoading: isLoadingUser,
+                isLoading,
                 isLoggedIn: !!tokens && !!user,
                 token: tokens?.accessToken,
                 signIn: signIn,

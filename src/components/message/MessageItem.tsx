@@ -12,17 +12,18 @@ export function MessageItem({ message, className }: MessageProps) {
   return (
     <div
       className={cn(
-        "max-w-[70%] rounded-lg px-4 py-3",
-        ["ANSWER", "WAITING-RESPONSE"].includes(message.type) && "self-start bg-zinc-800",
-        message.type === "QUESTION" && "self-end bg-blue-500",
+        "max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5",
+        ["ANSWER", "WAITING-RESPONSE"].includes(message.type) && "self-start rounded-tl-sm bg-zinc-800/80 text-zinc-100",
+        message.type === "QUESTION" && "self-end rounded-tr-sm bg-indigo-500 text-white",
         className,
       )}
     >
       <p
         className={cn(
-          "text-sm text-white",
-          isWaiting && "animate-pulse"
+          "text-sm sm:text-[15px] leading-relaxed whitespace-pre-wrap break-words",
+          isWaiting && "animate-pulse text-zinc-400"
         )}
+        aria-live={isWaiting ? "polite" : undefined}
       >
         {message.content}
       </p>

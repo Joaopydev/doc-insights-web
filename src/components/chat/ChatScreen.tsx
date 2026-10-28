@@ -6,7 +6,6 @@ import { SendHorizonalIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import Input from "../input/Input";
-import { cn } from "../../utils/cn";
 
 import { useChat } from "../../hooks/queries/useChat";
 import { useQuestion } from "../../hooks/mutations/useQuestion";
@@ -22,30 +21,29 @@ const schema = z.object({
 function ChatScreen() {
   const { chatId } = useParams();
 
-  useEffect(() => {
-    if (!chatId) return
-
-    form.setValue("question", drafts[chatId] ?? "")
-  }, [chatId])
-
-
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       question: ""
     }
   })
+
+  useEffect(() => {
+    if (!chatId) return
+
+    form.setValue("question", drafts[chatId] ?? "")
+  }, [chatId])
+
   const question = form.watch("question")
 
   const { chat } = useChat({ chatId: chatId! })
   const { mutateAsync: sendQuestion } = useQuestion(chatId!)
-  const { isThinkingChats, setIsThinkingChats, setWaitingForAnswer } = useWebSocket() 
+  const { isThinkingChats, setIsThinkingChats } = useWebSocket() 
 
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const handleSubmit = form.handleSubmit(async (formData) => {
       try {
-        setWaitingForAnswer(true)
         setIsThinkingChats(prev => ({
           ...prev,
           [chatId!]: true,
@@ -66,7 +64,7 @@ function ChatScreen() {
     <div className="flex h-full w-full flex-col">
       <MessagesList chatId={chatId!} />
 
-      <div className="w-full shrink-0 px-4 pb-3 pt-4 mb-3">
+      <div className="w-full shrink-0 border-t border-zinc-900 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:pb-6">
         <div className="mx-auto w-full max-w-3xl">
           <div className="relative">
             <Controller 
@@ -75,7 +73,8 @@ function ChatScreen() {
               render={({ field }) => (
                 <Input
                   placeholder="Digite sua pergunta..."
-                  className="pr-12"
+                  aria-label="Pergunta sobre o documento"
+                  className="min-h-12 rounded-xl pr-14"
                   value={field.value}
                   onChange={(event) => {
                       field.onChange(event)
@@ -99,17 +98,13 @@ function ChatScreen() {
 
             <Button 
               disabled={question.trim().length < 2 || isThinkingChats[chatId!]}
-              size="icon-sm"
-              className="absolute right-2 top-1.5"
+              size="icon"
+              variant="primary"
+              aria-label="Enviar pergunta"
+              className="absolute right-1 top-1 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:opacity-100"
               onClick={handleSubmit}
             >
-              <SendHorizonalIcon
-                size={20}
-                className={cn(
-                  "text-zinc-400",
-                  question.trim() !== "" && !isThinkingChats[chatId!] && "hover:text-zinc-200"
-                )}
-              />
+              <SendHorizonalIcon size={18} aria-hidden="true" />
             </Button>
           </div>
         </div>

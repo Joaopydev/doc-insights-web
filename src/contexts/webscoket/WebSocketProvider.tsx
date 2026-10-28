@@ -89,8 +89,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       value={{
         isThinkingChats,
         setIsThinkingChats,
-        waitingForAnswer,
-        setWaitingForAnswer
       }}
     >
       {children}

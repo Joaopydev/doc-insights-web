@@ -1,5 +1,5 @@
 import * as ScrollArea from "@radix-ui/react-scroll-area"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Loader2, Bot } from "lucide-react"
 
 import { MessageItem } from "./MessageItem"
@@ -14,20 +14,15 @@ interface MessagesListProps {
 export function MessagesList({ chatId }: MessagesListProps) {
     const [animatedMessageId, setAnimatedMessageId] = useState<string | null>(null)
     const viewportRef = useRef<HTMLDivElement>(null)
+    const initialScrollChatIdRef = useRef<string | null>(null)
     const previousMessagesRef = useRef<{
         chatId: string
         ids: Set<string>
     } | null>(null)
 
     const { messages, isLoadingMessages } = useMessages({ chatId })
-    const { isThinkingChats, waitingForAnswer, setWaitingForAnswer } = useWebSocket()
+    const { isThinkingChats } = useWebSocket()
     const isThinking = isThinkingChats[chatId] ?? false
-
-    useEffect(() => {
-        if (!viewportRef.current || !messages) return
-
-        viewportRef.current.scrollTop = viewportRef.current.scrollHeight
-    }, [chatId])
 
     useEffect(() => {
         if (!animatedMessageId) return
@@ -69,13 +64,21 @@ export function MessagesList({ chatId }: MessagesListProps) {
         }
 
         if (newAnswer) {
-            setWaitingForAnswer(false)
             setAnimatedMessageId(newAnswer.id)
         }
     }, [messages, chatId, isLoadingMessages])
 
-    useEffect(() => {
-        if (!viewportRef.current || !messages?.length) return
+    // useLayoutEffect roda antes da pintura: ao abrir uma conversa, a primeira
+    // renderização das mensagens já aparece no fim, sem rolar a partir do topo.
+    useLayoutEffect(() => {
+        const viewport = viewportRef.current
+        if (!viewport || !messages?.length) return
+
+        if (initialScrollChatIdRef.current !== chatId) {
+            viewport.scrollTop = viewport.scrollHeight
+            initialScrollChatIdRef.current = chatId
+            return
+        }
 
         requestAnimationFrame(() => {
             if (!viewportRef.current) return
@@ -85,7 +88,15 @@ export function MessagesList({ chatId }: MessagesListProps) {
                 behavior: "smooth",
             })
         })
-    }, [messages])
+    }, [messages, chatId])
+
+    if (isLoadingMessages && !messages) {
+        return (
+            <div className="flex min-h-0 flex-1 w-full items-center justify-center">
+                <Loader2 className="animate-spin text-zinc-400" aria-label="Carregando mensagens" />
+            </div>
+        )
+    }
 
     return (
         <ScrollArea.Root className="min-h-0 flex-1 w-full overflow-hidden">
@@ -93,16 +104,18 @@ export function MessagesList({ chatId }: MessagesListProps) {
                 ref={viewportRef}
                 className="h-full w-full"
             >
-            <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pt-20">
-                {isLoadingMessages && !messages ? (
-                    <div className="flex w-full h-full flex-1 items-center justify-center p-4">
-                        <Loader2 className="animate-spin text-zinc-400" />
-                    </div>
-                    ) : messages?.length === 0 ? (
-                    <div className="flex h-full w-full items-center justify-center p-4">
-                        <h1 className="text-xl text-zinc-400">
+            <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pt-6 pb-4 md:pt-10">
+                {messages?.length === 0 ? (
+                    <div className="flex w-full flex-col items-center justify-center gap-3 py-24 text-center">
+                        <span className="flex size-12 items-center justify-center rounded-full bg-indigo-500/15">
+                            <Bot className="text-indigo-400" size={24} aria-hidden="true" />
+                        </span>
+                        <h1 className="text-lg font-medium text-zinc-200 text-balance">
                             Faça suas perguntas relacionadas ao documento
                         </h1>
+                        <p className="text-sm text-zinc-500">
+                            As respostas são baseadas no conteúdo do PDF enviado.
+                        </p>
                     </div>
                     ) : (
                         <>
@@ -118,8 +131,8 @@ export function MessagesList({ chatId }: MessagesListProps) {
                                 return (
                                     <div className="flex gap-2" 
                                         key={message.id}>
-                                        <div className="bg-zinc-600 rounded-full p-1.5 h-fit">
-                                            <Bot className="text-white" size={20} />
+                                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/15" aria-hidden="true">
+                                            <Bot className="text-indigo-400" size={18} />
                                         </div>
                                         <MessageItem
                                             key={message.id}
@@ -132,10 +145,10 @@ export function MessagesList({ chatId }: MessagesListProps) {
                                 )
                             })}
 
-                            {(isThinking || waitingForAnswer) && (
+                            {isThinking  && (
                                 <div className="flex gap-2">
-                                    <div className="bg-zinc-600 rounded-full p-1.5 h-fit">
-                                        <Bot className="text-white" size={20} />
+                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/15" aria-hidden="true">
+                                        <Bot className="text-indigo-400" size={18} />
                                     </div>
                                     <MessageItem
                                         message={{
@@ -154,10 +167,10 @@ export function MessagesList({ chatId }: MessagesListProps) {
             </div>
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar
-                className="flex touch-none select-none bg-blackA3 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-zinc-800 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+                className="flex touch-none select-none p-0.5 transition-colors duration-[160ms] ease-out hover:bg-zinc-800 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
                 orientation="vertical"
             >
-                <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-zinc-600 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+                <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-zinc-700 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
             </ScrollArea.Scrollbar>
         </ScrollArea.Root>
     )

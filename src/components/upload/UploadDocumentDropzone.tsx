@@ -1,4 +1,5 @@
 import {  useDropzone } from "react-dropzone"
+import { UploadCloud } from "lucide-react"
 import { usePendingUploads, useUploads } from "../../store/uploads"
 import { CircularProgressBar } from "../ui/CircurlarProgressBar"
 
@@ -18,19 +19,22 @@ function UploadDocumentDropzone() {
     })
 
     return (
-        <div className="px-3 flex flex-col gap-2 justify-content items-center">
-            <div  {...getRootProps()} data-active={isDragActive} className="cursor-pointer w-80 text-zinc-400 bg-black/20 p-5 rounded-lg border border-zinc-700 border-dashed h-32 flex flex-col items-center justify-center gap-1 hover:border-zinc-600 transaction-colors data-[active=true]:bg-indigo-500/10 data-[active=true]:border-indigo-400">
-                
+        <div className="flex flex-col gap-2 items-center">
+            <div  {...getRootProps()} data-active={isDragActive} className="cursor-pointer w-full text-zinc-400 bg-zinc-950/50 p-5 rounded-xl border-2 border-zinc-700 border-dashed min-h-40 flex flex-col items-center justify-center gap-2 text-center hover:border-indigo-400/60 hover:bg-indigo-500/5 transition-colors duration-150 data-[active=true]:bg-indigo-500/10 data-[active=true]:border-indigo-400">
+
                 <input type="file" {...getInputProps()} />
 
                 {isThereAnyPendingUpload ? (
                     <CircularProgressBar progress={uploadPercentage} size={54} strokeWidth={4}/>
                 ) : (
                     <>
-                        <span className="text-xs">
-                            Solte seus arquivos aqui ou
+                        <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-indigo-500/15">
+                            <UploadCloud size={22} className="text-indigo-400" aria-hidden="true" />
                         </span>
-                        <span className="text-xs underline">
+                        <span className="text-sm text-zinc-300">
+                            Solte seu arquivo aqui ou
+                        </span>
+                        <span className="text-sm font-medium text-indigo-400 underline underline-offset-4">
                             clique para abrir o seletor de arquivos
                         </span>
                     </>

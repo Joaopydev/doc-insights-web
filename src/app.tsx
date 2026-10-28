@@ -6,6 +6,7 @@ import UploadDocument from "./components/upload/UploadDocument.tsx"
 import ChatScreen from "./components/chat/ChatScreen.tsx"
 import SignIn from "./components/signin/SignIn.tsx"
 import SignUp from "./components/signup/SignUp.tsx"
+import { SplashScreen } from "./components/ui/SplashScreen.tsx"
 import { useAuth } from "./contexts/auth/useAuth.ts"
 import { AuthProviderContext } from "./contexts/auth/AuthProvider.tsx"
 import { WebSocketProvider } from "./contexts/webscoket/WebSocketProvider.tsx"
@@ -39,7 +40,11 @@ function App() {
 }
 
 function PrivateRoute() {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <SplashScreen />
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />
@@ -53,7 +58,11 @@ function PrivateRoute() {
 }
 
 function PublicRoute() {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <SplashScreen />
+  }
 
   if (isLoggedIn) {
     return <Navigate to="/" replace />

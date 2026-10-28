@@ -17,7 +17,7 @@ function SideBar() {
                 animate={isSideBarOpen ? "open" : "closed"}
                 variants={{
                     closed: {
-                        width: "80px",
+                        width: "72px",
                         transition: {
                             type: "spring",
                             stiffness: 300,
@@ -25,14 +25,15 @@ function SideBar() {
                         }
                     },
                     open: {
-                        width: "250px",
+                        width: "264px",
                         transition: {
-                            duration: 0.5
+                            duration: 0.3,
+                            ease: "easeOut"
                         }
                     }
                 }}
                 style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}
-                className="bg-zinc-950 border border-zinc-950 border-r-4 border-r-amber-600"
+                className="h-full bg-zinc-950 border-r border-zinc-800"
             >
                 {isSideBarOpen ? <OpenSideBar /> : <ClosedSideBar />}
             </motion.div>

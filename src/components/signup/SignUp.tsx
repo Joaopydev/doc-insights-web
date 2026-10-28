@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { Link } from "react-router-dom"
 
 import { useAuth } from "../../contexts/auth/useAuth";
 import { Button } from "../button/Button";
@@ -41,7 +42,7 @@ function SignUp() {
             title="Crie sua conta"
             subtitle="Cadastre-se para acessar o sistema"
         >
-            <div className="flex flex-col items-center justify-center gap-6">
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
                 <Controller
                     control={form.control}
                     name="name"
@@ -85,7 +86,7 @@ function SignUp() {
                             placeholder="Digite sua senha"
                             type="password"
                             autoCapitalize="none"
-                            autoComplete="password"
+                            autoComplete="new-password"
                             onChange={field.onChange}
                             value={field.value}
                             error={fieldState.error?.message}
@@ -93,13 +94,23 @@ function SignUp() {
                     )}
                 />
 
-                <Button 
-                    className="flex-1 justify-center bg-blue-900 rounded-r-full rounded-l-full w-full"
-                    onClick={handleSubmit}
-                >
-                    Criar Conta
-                </Button>
-            </div>
+                <div className="mt-2 flex flex-col items-center gap-4">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full"
+                        loading={form.formState.isSubmitting}
+                    >
+                        Criar Conta
+                    </Button>
+                    <p className="text-sm text-zinc-400">
+                        Já tem uma conta?{" "}
+                        <Link to="/login" className="font-medium text-indigo-400 underline-offset-4 hover:underline">
+                            Entrar
+                        </Link>
+                    </p>
+                </div>
+            </form>
         </AuthLayout>
     )
 }

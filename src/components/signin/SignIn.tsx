@@ -41,7 +41,7 @@ function SignIn() {
             title="Entre com sua conta"
             subtitle="Faça login para acessar o sistema"
         >
-            <div className="flex flex-col items-center justify-center gap-6">
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
                 <Controller
                     control={form.control}
                     name="email"
@@ -67,26 +67,30 @@ function SignIn() {
                             type="password"
                             placeholder="Digite sua senha"
                             autoCapitalize="none"
-                            autoComplete="email"
+                            autoComplete="current-password"
                             value={field.value}
                             onChange={field.onChange}
                             error={fieldState.error?.message}
                         />
                     )}
                 />
-                <div className="flex flex-col items-center-safe justify-center gap-4">
-                    <Button 
-                        className="flex-1 justify-center bg-blue-900 rounded-r-full rounded-l-full w-full"
-                        onClick={handleSubmit}
+                <div className="mt-2 flex flex-col items-center gap-4">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full"
                         loading={form.formState.isSubmitting}
                     >
                         Entrar
                     </Button>
-                    <Link to="/register">
-                        <span className="text-xs text-gray-500 underline">Não tem uma conta ainda? Clique aqui para criar.</span>
-                    </Link>
+                    <p className="text-sm text-zinc-400">
+                        Não tem uma conta ainda?{" "}
+                        <Link to="/register" className="font-medium text-indigo-400 underline-offset-4 hover:underline">
+                            Criar conta
+                        </Link>
+                    </p>
                 </div>
-            </div>
+            </form>
         </AuthLayout>
     )
 }
