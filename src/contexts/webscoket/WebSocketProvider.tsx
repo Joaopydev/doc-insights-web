@@ -10,7 +10,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { token } = useAuth()
   const queryClient = useQueryClient()
   const [isThinkingChats, setIsThinkingChats] = useState<Record<string, boolean>>({})
-  const [waitingForAnswer, setWaitingForAnswer] = useState<boolean>(false)
 
   useEffect(() => {
       if (!token) return
