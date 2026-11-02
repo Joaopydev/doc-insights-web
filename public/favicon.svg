@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#09090b"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" stroke="#6366f1" stroke-opacity=".35" stroke-width="2"/>
+  <!-- documento com canto dobrado -->
+  <path d="M19 12h18l10 10v28a2 2 0 0 1-2 2H19a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2Z" fill="#6366f1" fill-opacity=".18" stroke="#818cf8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M37 12v8a2 2 0 0 0 2 2h8" stroke="#818cf8" stroke-width="3" stroke-linejoin="round"/>
+  <!-- barras de "insight" -->
+  <path d="M24 44v-5M30 44v-9M36 44v-6" stroke="#a5b4fc" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- brilho -->
+  <path d="M46 8l1.6 4.4L52 14l-4.4 1.6L46 20l-1.6-4.4L40 14l4.4-1.6L46 8Z" fill="#c7d2fe"/>
+</svg>
