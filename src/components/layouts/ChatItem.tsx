@@ -91,7 +91,7 @@ export function ChatItem({ id, documentId, name, isActive }: IChatItemProps) {
 
       if (isActive) navigate("/")
     } catch {
-      // mantém o diálogo aberto para o usuário tentar novamente
+      // mantain the dialog open for the user to try again
     }
   }
 
@@ -143,7 +143,7 @@ export function ChatItem({ id, documentId, name, isActive }: IChatItemProps) {
             className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm text-red-400 transition-colors duration-150 hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
           >
             <Trash2 size={16} aria-hidden="true" />
-            Excluir chat
+            Excluir
           </button>
         </div>
       )}

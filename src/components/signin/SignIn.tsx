@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react"
 import { z } from "zod"
+import { isAxiosError } from "axios"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Link } from "react-router-dom"
@@ -8,6 +10,7 @@ import { Controller, useForm } from "react-hook-form"
 import AuthLayout from "../layouts/AuthLayout"
 import Input from "../input/Input"
 import { Button } from "../button/Button"
+import { AuthErrorAlert } from "../ui/AuthErrorAlert"
 import { useAuth } from "../../contexts/auth/useAuth"
 
 
@@ -26,15 +29,37 @@ function SignIn() {
     })
 
     const { signIn } = useAuth()
+    const [authError, setAuthError] = useState<string | null>(null)
+    const [attempt, setAttempt] = useState(0)
+    const alertRef = useRef<HTMLDivElement>(null)
+
+    // Leva o foco ao aviso para leitores de tela e teclado.
+    useEffect(() => {
+        if (attempt > 0) alertRef.current?.focus()
+    }, [attempt])
 
     const handleSubmit = form.handleSubmit(async (formData) => {
+        setAuthError(null)
         try {
             await signIn(formData)
         } catch (err) {
-            console.log(err)
-            alert("Credenciais Inválidas")
+            // Mensagem única para e-mail inexistente ou senha errada: não revela se a conta existe.
+            const isServerOrNetworkFailure =
+                isAxiosError(err) && (!err.response || err.response.status >= 500)
+
+            setAuthError(
+                isServerOrNetworkFailure
+                    ? "Tivemos um problema de conexão. Tente novamente em instantes."
+                    : "Usuário ou senha incorretos. Confira os dados e tente novamente."
+            )
+            setAttempt((n) => n + 1)
+            form.resetField("password")
+            form.setFocus("password")
         }
     })
+
+    const clearAuthError = () => setAuthError(null)
+    const credentialsInvalid = !!authError
 
     return (
         <AuthLayout
@@ -42,6 +67,12 @@ function SignIn() {
             subtitle="Faça login para acessar o sistema"
         >
             <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+                <AuthErrorAlert
+                    ref={alertRef}
+                    message={authError}
+                    attempt={attempt}
+                    onDismiss={clearAuthError}
+                />
                 <Controller
                     control={form.control}
                     name="email"
@@ -53,8 +84,9 @@ function SignIn() {
                             autoCapitalize="none"
                             autoComplete="email"
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => { clearAuthError(); field.onChange(value) }}
                             error={fieldState.error?.message}
+                            invalid={credentialsInvalid}
                         />
                     )}
                 />
@@ -69,8 +101,9 @@ function SignIn() {
                             autoCapitalize="none"
                             autoComplete="current-password"
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => { clearAuthError(); field.onChange(value) }}
                             error={fieldState.error?.message}
+                            invalid={credentialsInvalid}
                         />
                     )}
                 />

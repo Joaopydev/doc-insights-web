@@ -7,6 +7,8 @@ interface InputProps
     mask?: string;
     type?: string;
     error?: string;
+    // Marca o campo como inválido sem mensagem própria (erro mostrado em outro lugar).
+    invalid?: boolean;
     placeholder?: string;
     label?: string;
     className?: string;
@@ -16,6 +18,7 @@ interface InputProps
 
 function Input({
     error,
+    invalid,
     mask,
     label,
     type = "text",
@@ -47,11 +50,11 @@ function Input({
                 id={inputId}
                 type={type}
                 placeholder={placeholder}
-                aria-invalid={!!error || undefined}
+                aria-invalid={!!error || invalid || undefined}
                 aria-describedby={error ? errorId : undefined}
                 className={cn(
                     "w-full min-h-11 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-base text-zinc-100 placeholder:text-zinc-500 outline-none transition-colors duration-150 hover:border-zinc-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/30",
-                    !!error && "border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-red-500/30",
+                    (!!error || invalid) && "border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-red-500/30",
                     className
                 )}
                 value={mask ? maskedValue : props.value}

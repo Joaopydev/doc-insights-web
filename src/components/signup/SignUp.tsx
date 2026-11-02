@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react"
 import { z } from "zod"
+import { isAxiosError } from "axios"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -7,6 +9,7 @@ import { useAuth } from "../../contexts/auth/useAuth";
 import { Button } from "../button/Button";
 import Input from "../input/Input";
 import AuthLayout from "../layouts/AuthLayout";
+import { AuthErrorAlert } from "../ui/AuthErrorAlert";
 
 
 const schema = z.object({
@@ -28,12 +31,34 @@ function SignUp() {
 
     const { signUp } = useAuth()
 
+    const [submitError, setSubmitError] = useState<string | null>(null)
+    const [attempt, setAttempt] = useState(0)
+    const alertRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (attempt > 0) alertRef.current?.focus()
+    }, [attempt])
+
     const handleSubmit = form.handleSubmit(async (formData) => {
+        setSubmitError(null)
         try {
             await signUp(formData)
         } catch (err) {
-            console.error(err)
-            alert(err)
+            if (isAxiosError(err) && err.response?.status === 409) {
+                form.setError(
+                    "email",
+                    { message: "Este e-mail já está em uso. Entre na sua conta ou use outro e-mail." },
+                    { shouldFocus: true }
+                )
+                return
+            }
+
+            setSubmitError(
+                isAxiosError(err) && !err.response
+                    ? "Tivemos um problema de conexão. Tente novamente em instantes."
+                    : "Não foi possível criar sua conta agora. Tente novamente."
+            )
+            setAttempt((n) => n + 1)
         }
     })
 
@@ -43,6 +68,13 @@ function SignUp() {
             subtitle="Cadastre-se para acessar o sistema"
         >
             <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+                <AuthErrorAlert
+                    ref={alertRef}
+                    title="Não foi possível criar a conta"
+                    message={submitError}
+                    attempt={attempt}
+                    onDismiss={() => setSubmitError(null)}
+                />
                 <Controller
                     control={form.control}
                     name="name"
