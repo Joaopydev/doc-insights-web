@@ -18,7 +18,14 @@ export class ChatService extends Service {
 
     static async listUserChats(): Promise<ChatService.ListUserChatsResponse> {
         const { data } = await this.client.get("/conversations")
-        return { chats: data.conversations }
+        const chats = data.conversations.map((chat: ChatService.ApiChat) => ({
+            id: chat.id,
+            name: chat.name,
+            documentId: chat.document_id,
+            userId: chat.user_id,
+            createdAt: chat.created_at,
+        }))
+        return { chats }
     }
 
     static async sendMessage(
@@ -53,6 +60,10 @@ export class ChatService extends Service {
             }
         }
     }
+
+    static async deleteChatById({ chatId }: ChatService.DeleteChatByIdPaylod) {
+        await this.client.delete(`/conversation/${chatId}`)
+    }
 }
 
 export namespace ChatService {
@@ -61,6 +72,14 @@ export namespace ChatService {
         content: string
         conversation_id: string
         message_type: MessageType
+        created_at: string
+    }
+
+    export type ApiChat = {
+        id: string,
+        name: string,
+        document_id: string,
+        user_id: string,
         created_at: string
     }
 
@@ -89,6 +108,10 @@ export namespace ChatService {
     }
 
     export type GetChatByIdPayload = {
+        chatId: string
+    }
+
+    export type DeleteChatByIdPaylod = {
         chatId: string
     }
 

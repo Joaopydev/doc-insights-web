@@ -1,15 +1,15 @@
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ChevronRight, ChevronDown } from "lucide-react";
 
 import { useChats } from "../../hooks/queries/useChats";
-import { cn } from "../../utils/cn";
+import { ChatItem } from "./ChatItem";
 
 function RecentConversations() {
   const [open, setOpen] = useState(true);
-  const { chats, isLoadingChats } = useChats();
   const { chatId } = useParams();
+  const { chats, isLoadingChats } = useChats();
 
   return (
     <div className="flex flex-col flex-1 min-h-0 mt-4">
@@ -30,7 +30,7 @@ function RecentConversations() {
 
       {open && (
         <ScrollArea.Root className="mt-1 min-h-0 flex-1 overflow-hidden">
-          <ScrollArea.Viewport className="h-full w-full">
+          <ScrollArea.Viewport className="h-full w-full [&>div]:!block">
             {isLoadingChats && !chats ? (
               <p className="px-3 py-2 text-sm text-zinc-400">
                 Carregando...
@@ -43,18 +43,13 @@ function RecentConversations() {
               ) : (
                 <nav aria-label="Conversas recentes" className="flex flex-col gap-0.5 pr-2">
                   {chats?.map((chat) => (
-                    <Link
+                    <ChatItem
                       key={chat.id}
-                      to={`/chat/${chat.id}`}
-                      title={chat.name}
-                      aria-current={chatId === chat.id ? "page" : undefined}
-                      className={cn(
-                        "block truncate rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors duration-150 hover:bg-zinc-900 hover:text-zinc-100",
-                        chatId === chat.id && "bg-zinc-800 text-zinc-100 hover:bg-zinc-800"
-                      )}
-                    >
-                      {chat.name}
-                    </Link>
+                      id={chat.id}
+                      documentId={chat.documentId}
+                      name={chat.name}
+                      isActive={chatId === chat.id}
+                    />
                   ))}
                 </nav>
               )

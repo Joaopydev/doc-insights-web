@@ -26,6 +26,7 @@ type UploadState = {
     retryUpload: (uploadId: string) => void
     clearUploads: () => void
     removeUpload: (uploadId: string) => void
+    removeUploadByDocumentId: (documentId: string) => void
 }
 
 
@@ -150,6 +151,16 @@ export const useUploads = create<UploadState, [["zustand/immer", never]]>(
             })
         }
 
+        async function removeUploadByDocumentId(documentId: string) {
+            set(state => {
+                for (const [uploadId, upload] of state.uploads) {
+                    if (upload?.documentId === documentId) {
+                        state.uploads.delete(uploadId)
+                    }
+                }
+            })
+        }
+
         return {
             uploads: new Map(),
             addUploads,
@@ -157,6 +168,7 @@ export const useUploads = create<UploadState, [["zustand/immer", never]]>(
             retryUpload,
             clearUploads,
             removeUpload,
+            removeUploadByDocumentId,
         }
     })
 )

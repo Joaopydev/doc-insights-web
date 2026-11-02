@@ -54,7 +54,10 @@ export function UploadItem({
                         </Button>
 
                         <Button
-                            disabled={upload.status === "success" && document?.status !== "READY"}
+                            disabled={
+                                upload.status === "success" && document?.status !== "READY" ||
+                                upload.status === "success" && !document?.conversationId
+                            }
                             size="icon-sm"
                             className="size-8"
                             onClick={() => upload.status == "progress" ? cancelUpload(upload.id) : removeUpload(upload.id)}
@@ -84,7 +87,7 @@ export function UploadItem({
                         {document?.status === "READY" && document?.conversationId ? (
                             <span className="text-green-400">Documento pronto para analise</span>
                         ) : upload.status !== "success" && upload.status === "progress" ? (
-                            <span className="text-indigo-400">Aguardando upload</span>
+                            <span className="text-indigo-400 animate-pulse">Aguardando upload...</span>
                         ) : ["error", "cancelled"].includes(upload.status) ? (
                             <span className="text-red-400">Processamento interrompido</span>
                         ) : (
